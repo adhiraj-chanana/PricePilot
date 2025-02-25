@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine, Base, Product
+from database import CompetitorPrice 
 import crud
 import scraper
+import ml_model
 
 app = FastAPI()
 
@@ -71,3 +73,18 @@ def fetch_competitor_prices(product_id: int, db: Session = Depends(get_db)):
 
     # Store in database
     return crud.store_multiple_competitor_prices(db, product_id, competitor_prices)
+
+@app.get("/optimized-price/")
+def get_optimized_price(product_id: int, db: Session = Depends(get_db)):
+    """
+    Uses ML to recommend the best price for a product.
+    """
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        return {"error": "Product not found"}
+
+    competitor_entries = db.query(CompetitorPrice).filter(CompetitorPrice.product_id == product_id).all()
+
+    competitor_prices = [c.competitor_price for c in competitor_entries]
+
+    return ml_model.predict_price(product.current_price, competitor_prices, product.demand)

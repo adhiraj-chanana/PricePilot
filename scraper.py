@@ -38,7 +38,7 @@ def search_competitors(query: str):
 
     # Extract all prices directly
     competitors = []
-    for price_tag in soup.find_all("span", {"class": "s-item__price"}, limit=10):
+    for price_tag in soup.find_all("span", {"class": "s-item__price"}, limit=1000):
         print(price_tag.text)
         cleaned_price = price_tag.text.replace("$","").replace(",", "").strip()
         print(cleaned_price)
