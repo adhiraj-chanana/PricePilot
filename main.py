@@ -5,6 +5,8 @@ from database import CompetitorPrice
 import crud
 import scraper
 import ml_model
+import uvicorn
+
 
 app = FastAPI()
 
@@ -88,3 +90,7 @@ def get_optimized_price(product_id: int, db: Session = Depends(get_db)):
     competitor_prices = [c.competitor_price for c in competitor_entries]
 
     return ml_model.predict_price(product.current_price, competitor_prices, product.demand)
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=10000)
